@@ -31,8 +31,11 @@ export default function RootLayout({
   return (
     <html lang={locale}>
       <body>
-        {/* 只渲染子组件，移除 nav, main, 和 body/html 的特定 class */}
-        {children}
+        {/* === 开始：恢复 main 元素 === */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </main>
+        {/* === 结束：恢复 main 元素 === */}
       </body>
     </html>
   );
