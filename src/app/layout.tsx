@@ -3,8 +3,10 @@ import "./globals.css";
 // 使用next/font直接导入默认字体
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { ReactNode, Suspense } from "react";
+// 暂时注释掉未使用的导入
+// import LanguageSwitcher from "@/components/LanguageSwitcher";
+// import { ReactNode, Suspense } from "react";
+import { ReactNode } from "react";
 
 // 使用Inter字体作为替代
 const inter = Inter({
@@ -40,9 +42,10 @@ export default function RootLayout({
                   </Link>
                 </div>
               </div>
-              <Suspense fallback={<div className="w-20 h-8 bg-gray-700 rounded animate-pulse"></div>}>
+              {/* 暂时移除 Language Switcher 进行调试 */}
+              {/* <Suspense fallback={<div className="w-20 h-8 bg-gray-700 rounded animate-pulse"></div>}>
                 <LanguageSwitcher />
-              </Suspense>
+              </Suspense> */}
             </div>
           </div>
         </nav>
