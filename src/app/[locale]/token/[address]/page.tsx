@@ -789,7 +789,10 @@ export default function TokenPage() {
                       {trader.volumeUsdFormatted}
                     </td>
                     <td className="py-2 px-2">
-                      {trader.tags?.join(', ') || 'N/A'}
+                      {trader.tags && (trader.tags.includes('sniper-bot') || trader.tags.includes('arbitrage-bot'))
+                        ? 'bot' /* 如果包含任一机器人tag，显示 'bot' */
+                        : trader.tags?.join(', ') || 'N/A' /* 否则显示原始tag或N/A */
+                      }
                     </td>
                   </tr>
                 ))}
