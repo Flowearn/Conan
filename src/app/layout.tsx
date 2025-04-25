@@ -29,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang={locale}>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning={true}>
+        {/* IMPORTANT: 确保导航栏在部署时正确渲染 - 修复导航栏缺失问题 */}
         <nav className="bg-blue-600 dark:bg-blue-800 shadow-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
