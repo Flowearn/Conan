@@ -1,18 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
-// 使用next/font直接导入默认字体
-// import { Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 // import Link from "next/link";
-// 暂时注释掉未使用的导入
 // import LanguageSwitcher from "@/components/LanguageSwitcher";
 // import { ReactNode, Suspense } from "react";
 import { ReactNode } from "react";
 
-// 使用Inter字体作为替代 - 暂时注释掉
-// const inter = Inter({
-//   subsets: ["latin"],
-//   display: "swap",
-// });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Conan Token Explorer",
@@ -30,9 +27,10 @@ export default function RootLayout({
 
   return (
     <html lang={locale}>
-      <body>
-        {/* 保持极简：没有 nav, 没有 main, 没有 body class */}
-        {children}
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning={true}>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </main>
       </body>
     </html>
   );
