@@ -31,8 +31,8 @@ export default function RootLayout({
   return (
     <html lang={locale}>
       <body>
-        {/* === 开始：恢复 main 元素 === */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* === 开始：恢复 main 元素，但移除所有类名 === */}
+        <main> {/* 暂时移除所有 class */}
           {children}
         </main>
         {/* === 结束：恢复 main 元素 === */}
