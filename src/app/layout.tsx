@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-// import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { ReactNode, Suspense } from "react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 // import { ReactNode, Suspense } from "react";
-import { ReactNode } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,6 +38,9 @@ export default function RootLayout({
                   </Link>
                 </div>
               </div>
+              <Suspense fallback={<div className="w-20 h-8 bg-gray-700 rounded animate-pulse"></div>}>
+                <LanguageSwitcher />
+              </Suspense>
             </div>
           </div>
         </nav>
