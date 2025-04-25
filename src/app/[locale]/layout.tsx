@@ -1,34 +1,27 @@
+import { AbstractIntlMessages } from 'next-intl';
+import { getMessages } from '@/i18n'; // 确认此路径!
 import { ReactNode } from 'react';
-// import { NextIntlClientProvider, AbstractIntlMessages } from 'next-intl';
-// import { getMessages } from '@/i18n';
-// import IntlProviderClient from './IntlProviderClient';
+import IntlProviderClient from './IntlProviderClient'; // 导入客户端组件
 
-type LayoutProps = {
-  children: ReactNode;
-  params: {
-    locale: string;
-  };
-}
-
-export default function LocalizedLayout({
+export default async function LocalizedLayout({
   children,
-}: LayoutProps) {
-  // 彻底绕过 next-intl，直接渲染 children
-  return <>{children}</>;
+  params: { locale }
+}: {
+  children: ReactNode;
+  params: { locale: string };
+}) {
+  let messages: AbstractIntlMessages | undefined;
+  try {
+    messages = await getMessages({ locale });
+  } catch (error) {
+    console.error(`Failed to get messages for locale ${locale}:`, error);
+    messages = {}; // 使用空对象作为回退
+  }
 
-  // 原始逻辑已注释掉
-  // const { locale } = params;
-  // let messages: AbstractIntlMessages | undefined;
-  // try {
-  //   messages = await getMessages({ locale });
-  // } catch (error) {
-  //   console.error(`Failed to get messages for locale ${locale}:`, error);
-  //   messages = {};
-  // }
-
-  // return (
-  //   <IntlProviderClient messages={messages} locale={locale}>
-  //     {children}
-  //   </IntlProviderClient>
-  // );
+  return (
+    // 重新使用 IntlProviderClient 来提供 i18n 上下文
+    <IntlProviderClient messages={messages} locale={locale}>
+      {children}
+    </IntlProviderClient>
+  );
 } 
