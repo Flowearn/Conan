@@ -505,6 +505,7 @@ export default function TokenPage() {
     top10Holders: hList, 
     metadata, 
     topTraders: ttList,
+    holderStats
   } = tokenData.data;
   
   const contractAddr = params.address as string;
@@ -737,6 +738,24 @@ export default function TokenPage() {
       {/* === TokenAnalytics Card === */}
       <TokenAnalytics data={analyticsData ?? null} />
 
+      {/* Holder Stats Card */}
+      {holderStats && (
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6 mt-6">
+          <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">📊 {t('holderStatsTitle') || 'Holder Statistics'}</h3>
+          {/* 由于类型不匹配，直接显示持有者统计信息而不使用HolderStats组件 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            {Object.entries(holderStats).map(([key, value]) => (
+              <div key={key}>
+                <span className="text-gray-500 dark:text-gray-400">{key}:</span>
+                <span className="font-semibold dark:text-white ml-2">
+                  {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* === OHLCV 获取状态 === */}
       {tokenData?.data?.ohlcv && (
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6">
@@ -763,7 +782,7 @@ export default function TokenPage() {
       {/* === Top Traders Card === */}
       {ttList && ttList.length > 0 && (
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6">
-          <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">{t('top10TradersTitle')}</h3>
+          <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">🔄 {t('top10TradersTitle') || 'Top Traders'}</h3>
           <div className="overflow-x-auto text-xs">
             <table className="min-w-full">
               <thead>
@@ -813,7 +832,7 @@ export default function TokenPage() {
       {/* === Top Holders Card === */}
       {hList && hList.length > 0 && (
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6">
-          <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">{t('topHoldersTitle') || 'Top Holders'}</h3>
+          <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">👑 {t('topHoldersTitle') || 'Top Holders'}</h3>
           <div className="overflow-x-auto text-xs">
             <table className="min-w-full">
               <thead>
