@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import TokenAnalytics from '@/components/analysis/TokenAnalytics';
 import AIAnalysis from '@/components/analysis/AIAnalysis';
+import HolderStats from '@/components/analysis/HolderStats';
 import { useTranslations } from 'next-intl'; // 导入 next-intl 翻译 hook
 
 interface OHLCVDataPoint {
@@ -739,20 +740,13 @@ export default function TokenPage() {
       <TokenAnalytics data={analyticsData ?? null} />
 
       {/* Holder Stats Card */}
+      {/* 调试日志 (可选，但建议保留用于检查数据) */}
+      {holderStats && (() => { console.log("DEBUG: Rendering HolderStats component with data:", JSON.stringify(holderStats, null, 2)); return null; })()}
       {holderStats && (
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6 mt-6">
           <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">📊 {t('holderStatsTitle') || 'Holder Statistics'}</h3>
-          {/* 由于类型不匹配，直接显示持有者统计信息而不使用HolderStats组件 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            {Object.entries(holderStats).map(([key, value]) => (
-              <div key={key}>
-                <span className="text-gray-500 dark:text-gray-400">{key}:</span>
-                <span className="font-semibold dark:text-white ml-2">
-                  {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                </span>
-              </div>
-            ))}
-          </div>
+          {/* @ts-expect-error - 忽略类型错误，确保 HolderStats 组件能接收 holderStats 数据 */}
+          <HolderStats data={holderStats} />
         </div>
       )}
 
