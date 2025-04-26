@@ -222,8 +222,9 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
 
   return (
     <div className="mt-4 space-y-4">
-      {/* 持有者变化 */}
+      {/* 主要网格容器 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 持有者数量 - 保持在第一位 */}
         <div>
           <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('holderCountTitle')}</h5>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm px-2 py-4">
@@ -245,7 +246,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
           </div>
         </div>
         
-        {/* 持有者变化 */}
+        {/* 持有者变化 - 移到第二位 */}
         <div>
           <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">⏳ {t('holderChangeTitle')}</h5>
           <div className="grid grid-cols-3 gap-2 text-sm">
@@ -276,7 +277,32 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
           </div>
         </div>
 
-        {/* 持仓占比 - 直接访问嵌套数据路径 */}
+        {/* 持有者分布 - 移到第三位 (第一列第二行) */}
+        {hasDistributionData && (
+          <div>
+            <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('holderDistributionTitle')}</h5>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+              {combinedDistributionData.map((item) => {
+                // 只显示有效的数值
+                if (item.value > 0) {
+                  return (
+                    <div key={item.key} className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
+                      <div className="text-gray-700 dark:text-gray-300">
+                        {item.label}
+                      </div>
+                      <div className="font-semibold font-mono text-gray-900 dark:text-white">
+                        {formatDistributionValue(item.value)}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 持仓占比 - 移到第四位 (第二列第二行) */}
         <div>
           <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('holdingsRatioTitle')}</h5>
           <div className="grid grid-cols-2 gap-2 text-sm">
@@ -308,32 +334,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* 持有者分布 */}
-      {hasDistributionData && (
-        <div className="mt-4">
-          <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('holderDistributionTitle')}</h5>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-sm">
-            {combinedDistributionData.map((item) => {
-              // 只显示有效的数值
-              if (item.value > 0) {
-                return (
-                  <div key={item.key} className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
-                    <div className="text-gray-700 dark:text-gray-300">
-                      {item.label}
-                    </div>
-                    <div className="font-semibold font-mono text-gray-900 dark:text-white">
-                      {formatDistributionValue(item.value)}
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 持有者获取方式 */}
+      {/* 持有者获取方式 - 保持在网格外部 */}
       {acquisitionData && totalAcquisition > 0 && (
         <div className="mt-4">
           <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('acquisitionMethodTitle')}</h5>
