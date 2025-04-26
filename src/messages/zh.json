@@ -153,7 +153,7 @@
     "retryButton": "重试",
     "yesText": "是",
     "noText": "否",
-    "loadingAnalysisText": "AI正在分析中，大约需要10-15秒...",
+    "loadingAnalysisText": "请等待5-10秒",
     "loadingModelText": "大模型处理需要时间，请耐心等待",
     "aiErrorTitle": "AI分析错误",
     "aiNoDataFound": "未找到AI分析数据",
