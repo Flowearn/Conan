@@ -4,7 +4,9 @@ import { getRequestConfig } from 'next-intl/server';
 // 定义支持的语言
 export const locales = ['en', 'zh'] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = 'zh';
+export const defaultLocale: Locale = 'en';
+// 添加 localePrefix 变量，设置为 'as-needed'
+export const localePrefix = 'as-needed';
 
 // 添加 getMessages 函数以支持 layout.tsx 的调用
 export async function getMessages({ locale }: { locale: string }) {
