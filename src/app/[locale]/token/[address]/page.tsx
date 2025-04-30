@@ -111,28 +111,43 @@ interface Trader {
   tags?: string[];
 }
 
+interface Params {
+  address: string;
+  locale: string;
+}
+
+// Add type for raw params
+interface RawParams {
+  address?: string;
+  locale?: string;
+}
+
 export default function TokenPage() {
   // 初始化翻译 hook
   const t = useTranslations('TokenPage');
   
-  const params = useParams();
+  const rawParams = useParams() as RawParams;
+  const params: Params = {
+    address: rawParams.address || '',
+    locale: rawParams.locale || 'en'
+  };
   const [tokenData, setTokenData] = useState<TokenData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [showAiAnalysis, setShowAiAnalysis] = useState<boolean>(false);
-  const [isTradersExpanded, setIsTradersExpanded] = useState(false);
+  const [isTradersExpanded, setIsTradersExpanded] = useState<boolean>(false);
 
   // 添加重试计数器
-  const [connectionRetryCount, setConnectionRetryCount] = useState(0);
+  const [connectionRetryCount, setConnectionRetryCount] = useState<number>(0);
   const maxRetries = 3;
 
   // 获取当前语言环境（用于 AI 分析）
-  const locale = useParams()?.locale as string;
+  const locale = params.locale as string;
 
   // Helper function to get price change class
-  const getPriceChangeClass = (change?: number | string | null) => {
+  const getPriceChangeClass = (change?: number | string | null): string => {
     if (!change) return '';
     const numericChange = typeof change === 'string' ? parseFloat(change) : change;
     return numericChange > 0 ? 'text-green-600 dark:text-green-400' : 
@@ -141,7 +156,7 @@ export default function TokenPage() {
   };
 
   // Helper function to format address
-  const formatAddress = (address: string) => {
+  const formatAddress = (address: string): string => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
@@ -155,7 +170,7 @@ export default function TokenPage() {
     
     try {
       // 使用环境变量中的API基础URL
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3023';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3023';
       const chain = 'bsc'; // 默认使用 bsc 链
       const url = `${baseUrl}/api/token-data/${chain}/${params.address}`;
       console.log('--- Debug: Fetching URL:', url);
@@ -212,7 +227,7 @@ export default function TokenPage() {
     setAiError(null);
     
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3023';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3023';
       const chain = 'bsc';
       const aiUrl = `${baseUrl}/api/token-data/${chain}/${params.address}?analyze=true&lang=${locale}`;
       console.log(`尝试连接 AI 分析 API: ${aiUrl}`);
