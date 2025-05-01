@@ -170,7 +170,7 @@ export default function TokenPage() {
     
     try {
       // 使用环境变量中的API基础URL
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3023';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
       const chain = 'bsc'; // 默认使用 bsc 链
       const url = `${baseUrl}/api/token-data/${chain}/${params.address}`;
       console.log('--- Debug: Fetching URL:', url);
@@ -227,7 +227,7 @@ export default function TokenPage() {
     setAiError(null);
     
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3023';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
       const chain = 'bsc';
       const aiUrl = `${baseUrl}/api/token-data/${chain}/${params.address}?analyze=true&lang=${locale}`;
       console.log(`尝试连接 AI 分析 API: ${aiUrl}`);

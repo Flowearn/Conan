@@ -19,7 +19,11 @@ export default function IntlProviderClient({ messages, locale, children }: Props
   }
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider 
+      locale={locale} 
+      messages={messages}
+      timeZone="Etc/UTC"
+    >
       {children}
     </NextIntlClientProvider>
   );

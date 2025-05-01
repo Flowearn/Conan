@@ -236,9 +236,9 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
                 {/* 24h 变化 */}
                 {calculateChange('24h') && (
                   <div className={`text-sm ${getChangeStyle(calculateChange('24h')?.percent)}`}>
-                    {calculateChange('24h')!.change > 0 ? '+' : ''}
-                    {formatNumber(calculateChange('24h')!.change)} ({calculateChange('24h')!.percent > 0 ? '+' : ''}
-                    {calculateChange('24h')!.percent.toFixed(2)}%)
+                    {(calculateChange('24h')?.change ?? 0) > 0 ? '+' : ''}
+                    {formatNumber(calculateChange('24h')?.change ?? 0)} ({(calculateChange('24h')?.percent ?? 0) > 0 ? '+' : ''}
+                    {calculateChange('24h')?.percent?.toFixed(2) ?? 'N/A'}%)
                   </div>
                 )}
               </div>
@@ -253,24 +253,24 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('h24')}</div>
               <div className={`font-mono ${getChangeStyle(calculateChange('24h')?.percent)}`}>
-                {calculateChange('24h') 
-                  ? `${calculateChange('24h')!.percent > 0 ? '+' : ''}${calculateChange('24h')!.percent.toFixed(2)}%` 
+                {calculateChange('24h')?.percent !== undefined
+                  ? `${calculateChange('24h')!.percent > 0 ? '+' : ''}${calculateChange('24h')!.percent.toFixed(2)}%`
                   : 'N/A'}
               </div>
             </div>
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('d7')}</div>
               <div className={`font-mono ${getChangeStyle(calculateChange('7d')?.percent)}`}>
-                {calculateChange('7d') 
-                  ? `${calculateChange('7d')!.percent > 0 ? '+' : ''}${calculateChange('7d')!.percent.toFixed(2)}%` 
+                {calculateChange('7d')?.percent !== undefined
+                  ? `${calculateChange('7d')!.percent > 0 ? '+' : ''}${calculateChange('7d')!.percent.toFixed(2)}%`
                   : 'N/A'}
               </div>
             </div>
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('d30')}</div>
               <div className={`font-mono ${getChangeStyle(calculateChange('30d')?.percent)}`}>
-                {calculateChange('30d') 
-                  ? `${calculateChange('30d')!.percent > 0 ? '+' : ''}${calculateChange('30d')!.percent.toFixed(2)}%` 
+                {calculateChange('30d')?.percent !== undefined
+                  ? `${calculateChange('30d')!.percent > 0 ? '+' : ''}${calculateChange('30d')!.percent.toFixed(2)}%`
                   : 'N/A'}
               </div>
             </div>

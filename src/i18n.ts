@@ -32,8 +32,13 @@ export default getRequestConfig(async ({ locale }) => {
     : defaultLocale;
   
   // 使用 getMessages 函数加载翻译
-  return {
+  const config = {
     messages: await getMessages({ locale: resolvedLocale }),
-    locale: resolvedLocale // 使用已解析的有效 locale
+    locale: resolvedLocale, // 使用已解析的有效 locale
+    timeZone: 'Etc/UTC' // 添加默认时区配置
   };
+
+  console.log('--- i18n.ts: getRequestConfig is executing. Returning config:', JSON.stringify(config, null, 2));
+  
+  return config;
 }); 
