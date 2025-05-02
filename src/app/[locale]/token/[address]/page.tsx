@@ -77,17 +77,6 @@ interface TokenData {
     TokenHolderUsdValueFormatted: string;
   }>;
   topTraders?: Trader[];
-  aiAnalysis?: {
-    holderReport?: string;
-    priceReport?: string;
-    riskReport?: string;
-    fundamentalReport?: string;
-    communityReport?: string;
-    tokenInsight?: string;
-    technicalAnalysis?: string;
-    maxCapReport?: string;
-    entryExitReport?: string;
-  };
   metadata?: {
     name: string;
     symbol: string;
@@ -102,6 +91,19 @@ interface TokenData {
   };
   tokenAnalytics?: Record<string, unknown>;
 }
+
+// Define AiAnalysisData type based on the existing aiAnalysis field structure
+type AiAnalysisData = {
+  holderReport?: string;
+  priceReport?: string;
+  riskReport?: string;
+  fundamentalReport?: string;
+  communityReport?: string;
+  tokenInsight?: string;
+  technicalAnalysis?: string;
+  maxCapReport?: string;
+  entryExitReport?: string;
+};
 
 interface Trader {
   address: string;
@@ -136,15 +138,23 @@ export default function TokenPage() {
   const [error, setError] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<AiAnalysisData | null>(null);
   const [showAiAnalysis, setShowAiAnalysis] = useState<boolean>(false);
   const [isTradersExpanded, setIsTradersExpanded] = useState<boolean>(false);
+
+  console.log('--- Render State Check: loading=', loading, 'isAiLoading=', isAiLoading);
+
+  // Reset AI analysis state when locale changes
+  useEffect(() => {
+    console.log(`--- Locale changed to: ${params.locale}, resetting AI analysis state ---`);
+    setAiAnalysisResult(null);
+    setIsAiLoading(false);
+    setShowAiAnalysis(false);
+  }, [params.locale]);
 
   // 添加重试计数器
   const [connectionRetryCount, setConnectionRetryCount] = useState<number>(0);
   const maxRetries = 3;
-
-  // 获取当前语言环境（用于 AI 分析）
-  const locale = params.locale as string;
 
   // Helper function to get price change class
   const getPriceChangeClass = (change?: number | string | null): string => {
@@ -221,42 +231,65 @@ export default function TokenPage() {
 
   // 处理 AI 分析请求
   const handleRequestAiAnalysis = useCallback(async () => {
-    if (!params.address) return;
-    
+    console.log("--- AI Analysis START ---"); // 1. 函数开始
+
+    if (!params.address) {
+      console.log("--- AI Analysis EXIT: No params.address ---"); // 2. 检查地址参数
+      return;
+    }
+    console.log("--- AI Analysis: params.address present:", params.address); // 3. 地址参数存在
+
+    console.log("--- AI Analysis: Setting loading true ---"); // 4. 准备设置加载状态
     setIsAiLoading(true);
     setAiError(null);
-    
+
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003'; // 使用修正后的后备 URL
       const chain = 'bsc';
-      const aiUrl = `${baseUrl}/api/token-data/${chain}/${params.address}?analyze=true&lang=${locale}`;
-      console.log(`尝试连接 AI 分析 API: ${aiUrl}`);
-      
+
+      // 5. 获取并检查 locale
+      const currentLocale = params.locale; // 使用已有的 params 对象
+      console.log("--- AI Analysis: Locale obtained:", currentLocale, typeof currentLocale);
+
+      // 6. 检查 locale 是否有效 (非常重要)
+      if (typeof currentLocale !== 'string' || currentLocale.trim().length === 0) {
+         console.error("--- AI Analysis ERROR: Invalid locale detected:", currentLocale);
+         throw new Error("Invalid locale for AI analysis request");
+      }
+      console.log("--- AI Analysis: Locale is valid, constructing URL..."); // 7. Locale 有效
+
+      const aiUrl = `${baseUrl}/api/token-data/${chain}/${params.address}?analyze=true&lang=${currentLocale}`;
+      console.log(`--- AI Analysis: Attempting to fetch URL: ${aiUrl}`); // 8. 打印将要请求的 URL
+
       const res = await fetch(aiUrl);
+      console.log("--- AI Analysis: Fetch call returned, status:", res.status); // 9. Fetch 调用返回
+
       if (!res.ok) {
+        console.error("--- AI Analysis ERROR: Fetch response not OK", res.status, res.statusText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
+      console.log("--- AI Analysis: Fetch response OK, attempting to parse JSON..."); // 10. 准备解析 JSON
       const result = await res.json();
+      console.log("--- AI Analysis: JSON parsed successfully:", result?.success); // 11. JSON 解析完成
+
       if (result?.success && result.data?.aiAnalysis) {
-        setTokenData(prev => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            aiAnalysis: result.data.aiAnalysis
-          };
-        });
+        console.log("--- AI Analysis: Success and aiAnalysis data found, updating state..."); // 12. 数据有效，准备更新状态
+        setAiAnalysisResult(result.data.aiAnalysis);
         setShowAiAnalysis(true);
+        console.log("--- AI Analysis: Set showAiAnalysis to true"); // 13. UI 状态更新
       } else {
+        console.error("--- AI Analysis ERROR: Response success was false or aiAnalysis data missing", result); // 14. 响应无效
         throw new Error('AI分析结果无效或为空');
       }
     } catch (error) {
-      console.error('AI分析请求失败:', error);
+      console.error('--- AI Analysis CATCH BLOCK: Caught Error:', error); // 15. 捕获到错误
       setAiError(error instanceof Error ? error.message : '未知错误');
     } finally {
+      console.log("--- AI Analysis FINALLY BLOCK: Setting loading false ---"); // 16. Finally 块执行
       setIsAiLoading(false);
     }
-  }, [params.address, locale]);
+  }, [params]); // *** 依赖数组中使用整个 params 对象 ***
 
   // 使用 useEffect 调用初始数据获取
   useEffect(() => {
@@ -452,7 +485,7 @@ export default function TokenPage() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('aiAnalysisTitle')}</h3>
             
-            {!isAiLoading && (aiError || tokenData?.aiAnalysis === undefined) && (
+            {!isAiLoading && (aiError || aiAnalysisResult === null) && (
               <button 
                 onClick={handleRequestAiAnalysis}
                 className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center"
@@ -477,9 +510,9 @@ export default function TokenPage() {
             </div>
           )}
           
-          {!isAiLoading && !aiError && tokenData?.aiAnalysis && (
+          {!isAiLoading && !aiError && aiAnalysisResult && (
             <div>
-              <AIAnalysis data={tokenData.aiAnalysis} />
+              <AIAnalysis data={aiAnalysisResult} />
             </div>
           )}
         </div>

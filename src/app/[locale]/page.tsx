@@ -22,7 +22,7 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">
-          Conan Token Explorer
+          Conan Meme 
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

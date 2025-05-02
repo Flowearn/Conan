@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Conan Token Explorer",
+  title: "Conan's Meme",
   description: "Explore token information on BSC and Solana",
 };
 
