@@ -12,8 +12,13 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  
+  /* 直接使用GeistMono导出的CSS变量 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* 备用字体栈，以防Geist字体无法正确加载 */
+  --font-mono-fallback: Menlo, Consolas, Monaco, "Source Code Pro", ui-monospace, SFMono-Regular, "Liberation Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,6 +32,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
+}
+
+/* 防止Geist字体未能正确加载时的备用样式 */
+.font-mono {
+  font-family: var(--font-mono), var(--font-mono-fallback) !important;
 }
 
 /* Custom scrollbar */

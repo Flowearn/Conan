@@ -13,12 +13,13 @@ interface DistributionItem {
 }
 
 interface HolderChangeItem {
-  change: number;
-  changePercent: number;
+  change: number | null;
+  changePercent: number | null;
 }
 
 interface SupplyItem {
   supplyPercent: string | number;
+  percentage?: string | number;
 }
 
 interface HoldersByAcquisition {
@@ -30,10 +31,15 @@ interface HoldersByAcquisition {
 
 interface DetailData {
   holderChange?: {
-    '24h'?: { change: number; changePercent: number };
-    '7d'?: { change: number; changePercent: number };
-    '30d'?: { change: number; changePercent: number };
-    [key: string]: { change: number; changePercent: number } | undefined;
+    '30m'?: { change: number | null; changePercent: number | null };
+    '1h'?: { change: number | null; changePercent: number | null };
+    '2h'?: { change: number | null; changePercent: number | null };
+    '4h'?: { change: number | null; changePercent: number | null };
+    '8h'?: { change: number | null; changePercent: number | null };
+    '24h'?: { change: number | null; changePercent: number | null };
+    '7d'?: { change: number | null; changePercent: number | null };
+    '30d'?: { change: number | null; changePercent: number | null };
+    [key: string]: { change: number | null; changePercent: number | null } | undefined;
   };
   holderSupply?: {
     top10?: { supplyPercent: string | number };
@@ -58,6 +64,11 @@ interface HolderStatsProps {
       [key: string]: SupplyItem | undefined;
     };
     holderChange?: {
+      '30m'?: HolderChangeItem;
+      '1h'?: HolderChangeItem;
+      '2h'?: HolderChangeItem;
+      '4h'?: HolderChangeItem;
+      '8h'?: HolderChangeItem;
       '24h'?: HolderChangeItem;
       '7d'?: HolderChangeItem;
       '30d'?: HolderChangeItem;
@@ -66,23 +77,26 @@ interface HolderStatsProps {
     holderDistribution?: Partial<DistributionItem>;
     detail?: DetailData;
   };
+  chain?: string;
 }
 
-const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
+const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
   // 初始化翻译 hook
   const t = useTranslations('HolderStats');
   
-  // Add debug logs to track data structure
-  console.log('HolderStats received data:', data);
-  console.log('holderSupply structure:', data?.holderSupply);
-  
   if (!data) {
-    console.log('No data provided to HolderStats component');
     return <div className="text-xs text-gray-500">{t('noData')}</div>;
   }
 
+  // 判断是否为BSC链数据
+  const isBscData = !!(data.holderSupply?.top10 || data.detail?.holderSupply?.top10);
+  
+  // 如果是BSC数据，确保至少持仓比例部分能显示
+  if (isBscData) {
+  }
+
   // 计算持有者数量变化
-  const calculateChange = (period: string): { change: number; percent: number } | null => {
+  const calculateChange = (period: string): { change: number | null; percent: number | null } | null => {
     // 优先从 detail.holderChange 获取数据
     if (data.detail?.holderChange?.[period]) {
       return {
@@ -115,12 +129,9 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
   
   // 获取持有者供应占比数据
   const getHolderSupply = (key: string): { supplyPercent: number } => {
-    console.log(`Attempting to get holderSupply for key: ${key}`);
-    
     // 优先从 detail.holderSupply 获取数据
     if (detailData?.holderSupply?.[key]) {
       const supplyPercentValue = detailData.holderSupply[key]?.supplyPercent;
-      console.log(`From detail.holderSupply[${key}]:`, supplyPercentValue);
       
       if (supplyPercentValue !== undefined) {
         const numericValue = typeof supplyPercentValue === 'string' 
@@ -134,7 +145,6 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
     // 如果没有，尝试从 holderSupply 获取数据
     if (data.holderSupply?.[key]) {
       const supplyPercentValue = data.holderSupply[key]?.supplyPercent;
-      console.log(`From data.holderSupply[${key}]:`, supplyPercentValue);
       
       if (supplyPercentValue !== undefined) {
         const numericValue = typeof supplyPercentValue === 'string' 
@@ -144,27 +154,40 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
         return { supplyPercent: isNaN(numericValue) ? 0 : numericValue };
       }
     }
+    
+    // 针对BSC数据的额外兼容处理
+    // 检查是否有其他可能的数据格式或字段
+    if (isBscData) {
+      // 尝试查找可能的替代字段名称或父对象
+      // 例如，某些数据可能存储为data.holderSupply.[key].percentage而不是supplyPercent
+      if (data.holderSupply?.[key]?.percentage !== undefined) {
+        const alternativeValue = data.holderSupply[key]?.percentage;
+        const numericValue = typeof alternativeValue === 'string' 
+          ? parseFloat(alternativeValue) 
+          : Number(alternativeValue);
+        return { supplyPercent: isNaN(numericValue) ? 0 : numericValue };
+      }
+      
+      // 检查是否可能直接以数值形式存储
+      if (typeof data.holderSupply?.[key] === 'number') {
+        return { supplyPercent: data.holderSupply[key] as number };
+      }
+    }
 
-    console.log(`No valid data found for ${key}, returning default value`);
     return { supplyPercent: 0 }; // Return default object with 0 to prevent errors
   };
   
   // 获取持有者分布数据
   const getHolderDistribution = (): Record<string, number> | undefined => {
-    console.log('Getting holder distribution from:');
     if (detailData?.holderDistribution) {
-      console.log('- detailData.holderDistribution');
       return detailData.holderDistribution as unknown as Record<string, number>;
     }
     if (data?.holderSupply?.holderDistribution) {
-      console.log('- data.holderSupply.holderDistribution');
       return data.holderSupply.holderDistribution as unknown as Record<string, number>;
     }
     if (data?.holderDistribution) {
-      console.log('- data.holderDistribution');
       return data.holderDistribution as unknown as Record<string, number>;
     }
-    console.log('No holder distribution data found');
     return undefined;
   };
 
@@ -175,8 +198,8 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
   };
 
   // 获取变化百分比的样式
-  const getChangeStyle = (percent: number | undefined): string => {
-    if (percent === undefined) return 'text-gray-500';
+  const getChangeStyle = (percent: number | null | undefined): string => {
+    if (percent === undefined || percent === null) return 'text-gray-500';
     return percent > 0 
       ? 'text-green-600 dark:text-green-400' 
       : percent < 0 
@@ -186,7 +209,6 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
 
   // 获取持有者分布数据
   const holderDistribution = getHolderDistribution();
-  console.log('Holder distribution data:', holderDistribution);
   
   // 检查是否有任何有效的分布数据
   const hasDistributionData = holderDistribution && Object.keys(holderDistribution).length > 0;
@@ -217,8 +239,26 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
     return 'N/A';
   };
 
+  // 安全格式化百分比值
+  const safeFormatPercent = (percentValue: number | null | undefined): string => {
+    if (typeof percentValue !== 'number' || isNaN(percentValue)) {
+      return 'N/A';
+    }
+    return `${percentValue > 0 ? '+' : ''}${percentValue.toFixed(2)}%`;
+  };
+
   // 获取持有者获取方式数据
   const acquisitionData = detailData?.holdersByAcquisition;
+
+  // 根据链类型确定要显示的时间维度
+  let displayTimeframes: string[] = [];
+  if (chain === 'bsc') {
+    // BSC链使用24h, 7d, 30d三个时间维度
+    displayTimeframes = ['24h', '7d', '30d'];
+  } else {
+    // Solana链或其他默认情况使用Birdeye API的6个时间维度
+    displayTimeframes = ['30m', '1h', '2h', '4h', '8h', '24h'];
+  }
 
   return (
     <div className="mt-4 space-y-4">
@@ -234,11 +274,31 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
               </div>
               <div className="ml-2">
                 {/* 24h 变化 */}
-                {calculateChange('24h') && (
+                {calculateChange('24h') !== null && (
                   <div className={`text-sm ${getChangeStyle(calculateChange('24h')?.percent)}`}>
-                    {(calculateChange('24h')?.change ?? 0) > 0 ? '+' : ''}
-                    {formatNumber(calculateChange('24h')?.change ?? 0)} ({(calculateChange('24h')?.percent ?? 0) > 0 ? '+' : ''}
-                    {calculateChange('24h')?.percent?.toFixed(2) ?? 'N/A'}%)
+                    {(() => {
+                      const changeData = calculateChange('24h');
+                      const changeValue = changeData?.change;
+                      const percentValue = changeData?.percent;
+                      
+                      // 格式化变化量（若无绝对变化值，仅显示百分比）
+                      let formattedText = '';
+                      
+                      // 如果有绝对变化值，添加到显示中
+                      if (typeof changeValue === 'number' && !isNaN(changeValue)) {
+                        formattedText += `${changeValue > 0 ? '+' : ''}${formatNumber(changeValue)} `;
+                      }
+                        
+                      // 添加百分比变化（如果有的话）
+                      const formattedPercent = safeFormatPercent(percentValue);
+                      if (formattedPercent !== 'N/A') {
+                        formattedText += formattedText ? `(${formattedPercent})` : formattedPercent;
+                      } else if (!formattedText) {
+                        formattedText = 'N/A';
+                      }
+                        
+                      return formattedText;
+                    })()}
                   </div>
                 )}
               </div>
@@ -249,31 +309,23 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
         {/* 持有者变化 - 移到第二位 */}
         <div>
           <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">⏳ {t('holderChangeTitle')}</h5>
-          <div className="grid grid-cols-3 gap-2 text-sm">
-            <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
-              <div className="text-gray-700 dark:text-gray-300">{t('h24')}</div>
-              <div className={`font-mono ${getChangeStyle(calculateChange('24h')?.percent)}`}>
-                {calculateChange('24h')?.percent !== undefined
-                  ? `${calculateChange('24h')!.percent > 0 ? '+' : ''}${calculateChange('24h')!.percent.toFixed(2)}%`
-                  : 'N/A'}
-              </div>
-            </div>
-            <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
-              <div className="text-gray-700 dark:text-gray-300">{t('d7')}</div>
-              <div className={`font-mono ${getChangeStyle(calculateChange('7d')?.percent)}`}>
-                {calculateChange('7d')?.percent !== undefined
-                  ? `${calculateChange('7d')!.percent > 0 ? '+' : ''}${calculateChange('7d')!.percent.toFixed(2)}%`
-                  : 'N/A'}
-              </div>
-            </div>
-            <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
-              <div className="text-gray-700 dark:text-gray-300">{t('d30')}</div>
-              <div className={`font-mono ${getChangeStyle(calculateChange('30d')?.percent)}`}>
-                {calculateChange('30d')?.percent !== undefined
-                  ? `${calculateChange('30d')!.percent > 0 ? '+' : ''}${calculateChange('30d')!.percent.toFixed(2)}%`
-                  : 'N/A'}
-              </div>
-            </div>
+          <div className={`grid ${chain === 'bsc' ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6'} gap-2 text-sm`}>
+            {displayTimeframes.map((timeframe) => {
+              // 检查是否有这个时间段的数据
+              const changeData = calculateChange(timeframe);
+              const hasData = changeData !== null && (
+                changeData.change !== null || changeData.percent !== null
+              );
+              
+              return (
+                <div key={timeframe} className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
+                  <div className="text-gray-700 dark:text-gray-300">{timeframe}</div>
+                  <div className={`font-mono ${getChangeStyle(changeData?.percent)}`}>
+                    {hasData ? safeFormatPercent(changeData?.percent) : 'N/A'}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -305,29 +357,42 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data }) => {
         {/* 持仓占比 - 移到第四位 (第二列第二行) */}
         <div>
           <h5 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('holdingsRatioTitle')}</h5>
+          
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('top10Label')}</div>
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
-                {(getHolderSupply('top10').supplyPercent ?? 0).toFixed(2)}%
+                {(() => {
+                  const value = getHolderSupply('top10').supplyPercent;
+                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                })()}
               </div>
             </div>
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('top25Label')}</div>
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
-                {(getHolderSupply('top25').supplyPercent ?? 0).toFixed(2)}%
+                {(() => {
+                  const value = getHolderSupply('top25').supplyPercent;
+                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                })()}
               </div>
             </div>
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('top50Label')}</div>
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
-                {(getHolderSupply('top50').supplyPercent ?? 0).toFixed(2)}%
+                {(() => {
+                  const value = getHolderSupply('top50').supplyPercent;
+                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                })()}
               </div>
             </div>
             <div className="flex justify-between bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
               <div className="text-gray-700 dark:text-gray-300">{t('top100Label')}</div>
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
-                {(getHolderSupply('top100').supplyPercent ?? 0).toFixed(2)}%
+                {(() => {
+                  const value = getHolderSupply('top100').supplyPercent;
+                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                })()}
               </div>
             </div>
           </div>

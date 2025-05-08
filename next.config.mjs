@@ -29,6 +29,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'logo.moralis.io',
       },
+      {
+        protocol: 'https',
+        hostname: 'bafkreibk3covs5ltyqxa272uodhculbr6kea6betidfwy3ajsav2vjzyum.ipfs.nftstorage.link',
+      },
+      {
+        protocol: 'https',
+        hostname: 'arweave.net',
+      }
     ],
   },
 };

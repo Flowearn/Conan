@@ -29,6 +29,12 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
     if (data) {
       console.log('AIAnalysis component data received:', data);
       console.log('basicAnalysis:', data.basicAnalysis);
+      // Add more detailed logging
+      console.log('AIAnalysis detail - basicAnalysis type:', typeof data.basicAnalysis);
+      console.log('AIAnalysis detail - basicAnalysis length:', data.basicAnalysis ? data.basicAnalysis.length : 0);
+      if (data.basicAnalysis && data.basicAnalysis.length > 0) {
+        console.log('AIAnalysis detail - first 100 chars:', data.basicAnalysis.substring(0, 100));
+      }
     }
   }, [data]);
   
@@ -57,9 +63,19 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
   if (!hasValidBasicAnalysis) {
     console.log('AIAnalysis: No valid basicAnalysis content');
     return (
-      <div className="text-center p-4 text-gray-500 dark:text-gray-400">
-        <p>{t('unavailableText')}</p>
-        <p className="text-sm mt-2">{t('tryLaterText')}</p>
+      <div className="space-y-6">
+        <div className="mb-6">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-md py-3">
+            <div className="text-center px-4 py-2 text-gray-500 dark:text-gray-400">
+              <p>{t('unavailableText')}</p>
+              <p className="text-sm mt-2">{t('tryLaterText')}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-xs text-gray-500 dark:text-gray-400 pt-2">
+          <p>{t('disclaimer')}</p>
+        </div>
       </div>
     );
   }
@@ -73,18 +89,14 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h4 className="text-base font-semibold mb-4 text-gray-800 dark:text-gray-200">
-          📊 {t('basicAnalysisTitle')}
-          {isError && <span className="ml-2 text-sm text-red-500">{t('generationFailedSuffix')}</span>}
-        </h4>
-        <div className={`whitespace-pre-wrap p-3 rounded-md text-sm leading-relaxed tracking-wide ${
+        <div className={`whitespace-pre-wrap py-3 rounded-md text-sm leading-relaxed tracking-wide ${
           isError 
             ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' 
             : 'bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200'
         }`}>
           {isError 
-            ? <p>{t('errorPrefix')}{displayContent}</p>
-            : displayContent
+            ? <p className="px-4 py-2">{t('errorPrefix')}{displayContent}</p>
+            : <div className="px-4 py-2">{displayContent}</div>
           }
         </div>
       </div>

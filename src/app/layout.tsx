@@ -4,7 +4,10 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import { ReactNode, Suspense } from "react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-// import { ReactNode, Suspense } from "react";
+
+// 正确导入Geist字体
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +29,7 @@ export default function RootLayout({
   const locale = params?.locale || 'en';
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${GeistMono.variable} ${GeistSans.variable}`}>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning={true}>
         <nav className="bg-blue-600 dark:bg-blue-800 shadow-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

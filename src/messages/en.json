@@ -60,7 +60,30 @@
     "sellersLabel": "Sellers",
     "buyOrdersLabel": "Buy Orders",
     "sellOrdersLabel": "Sell Orders",
-    "dataFromMoralisText": "Data provided by Moralis. Shows trading activity in different time periods, including volume, number of traders, and transaction counts."
+    "dataFromMoralisText": "Data provided by Moralis. Shows trading activity in different time periods, including volume, number of traders, and transaction counts.",
+    "indicator": "Indicator",
+    "priceChangePercent": "Price Change (%)",
+    "uniqueWallets": "Unique Wallets",
+    "uniqueWalletsChangePercent": "Wallet Change (%)",
+    "buyCounts": "Buy Count",
+    "sellCounts": "Sell Count",
+    "tradeCountChangePercent": "Trade Count Change (%)",
+    "buyVolumeUSD": "Buy Volume (USD)",
+    "sellVolumeUSD": "Sell Volume (USD)",
+    "volumeChangePercent": "Volume Change (%)",
+    "activityStatsTitle": "Activity Statistics",
+    "overviewTitle": "Activity Data Overview",
+    "priceChangeCardTitle": "📈 Price Change (%)",
+    "walletActivityCardTitle": "💳 Wallet Activity",
+    "tradeCountsCardTitle": "🔄 Trade Count Stats",
+    "tradeVolumesCardTitle": "💰 Trade Volume (USD)",
+    "walletCountLabel": "Wallets:",
+    "changeLabel": "Change:",
+    "buyCountLabel": "Buy:",
+    "sellCountLabel": "Sell:",
+    "buyVolumeLabel": "Buy:",
+    "sellVolumeLabel": "Sell:",
+    "noDataText": "No data available"
   },
   "TokenPage": {
     "basicInfoTitle": "Basic Info",
@@ -71,10 +94,13 @@
     "marketCapLabel": "Market Cap:",
     "fdvLabel": "FDV:",
     "circulatingSupplyLabel": "Circulating Supply:",
+    "circulationRatioLabel": "Circulation Ratio:",
+    "totalSupplyLabel": "Total Supply:",
     "securityScoreLabel": "Security Score:",
     "verifiedContractLabel": "Verified Contract:",
     "possibleSpamLabel": "Possible Spam:",
     "contractAddressLabel": "Contract Address:",
+    "copyAddress": "Copy Address",
     "socialLinksTitle": "Social Links",
     "holdersInfoTitle": "Holder Information",
     "holderAnalysisTitle": "Holder Analysis",
@@ -102,7 +128,7 @@
     "klineDataStatusTitle": "K-line Data Status",
     "showMoreButton": "Show More (Total {count})",
     "showLessButton": "Show Less",
-    "generateAIButton": "Generate AI Analysis",
+    "generateAIButton": "AI Analyze",
     "updateAIButton": "Update AI Analysis",
     "viewPriceChartLink": "View Detailed Price Chart",
     "retryButton": "Retry",
@@ -110,6 +136,7 @@
     "noText": "No",
     "loadingAnalysisText": "Please wait 5-10 sec",
     "loadingModelText": "Large model processing takes time, please be patient",
+    "aiGenerating": "AI analysis is generating, please wait...",
     "aiErrorTitle": "AI Analysis Error",
     "aiNoDataFound": "No AI analysis data found",
     "aiDataUnavailable": "AI analysis data unavailable or being generated.",
@@ -139,6 +166,9 @@
     "dataUnavailableTitle": "Data unavailable",
     "unexpectedStateText": "Unexpected state: Loading finished, no specific error, but data is still missing.",
     "loadTokenDataFailedText": "Failed to load token data, please check the address or try again later.",
-    "errorDetails": "Error details"
+    "errorDetails": "Error details",
+    "activityOverview": {
+      "title": "Activity Stats"
+    }
   }
 } 
