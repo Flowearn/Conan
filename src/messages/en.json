@@ -169,6 +169,7 @@
     "errorDetails": "Error details",
     "activityOverview": {
       "title": "Activity Stats"
-    }
+    },
+    "errorOccurred": "An error occurred while loading token data. Please try again later or check the token address and network selection."
   }
 } 
