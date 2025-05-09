@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { safeFormatPercentage, safeFormatSignedPercentage, safeToFixed } from '@/utils/formatters';
 
 interface DistributionItem {
   whales?: number;
@@ -244,7 +245,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
     if (typeof percentValue !== 'number' || isNaN(percentValue)) {
       return 'N/A';
     }
-    return `${percentValue > 0 ? '+' : ''}${percentValue.toFixed(2)}%`;
+    return safeFormatSignedPercentage(percentValue, 2);
   };
 
   // 获取持有者获取方式数据
@@ -364,7 +365,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
                 {(() => {
                   const value = getHolderSupply('top10').supplyPercent;
-                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                  return safeFormatPercentage(value, 2);
                 })()}
               </div>
             </div>
@@ -373,7 +374,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
                 {(() => {
                   const value = getHolderSupply('top25').supplyPercent;
-                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                  return safeFormatPercentage(value, 2);
                 })()}
               </div>
             </div>
@@ -382,7 +383,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
                 {(() => {
                   const value = getHolderSupply('top50').supplyPercent;
-                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                  return safeFormatPercentage(value, 2);
                 })()}
               </div>
             </div>
@@ -391,7 +392,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold font-mono text-gray-900 dark:text-white">
                 {(() => {
                   const value = getHolderSupply('top100').supplyPercent;
-                  return typeof value === 'number' && !isNaN(value) ? value.toFixed(2) + '%' : 'N/A';
+                  return safeFormatPercentage(value, 2);
                 })()}
               </div>
             </div>
@@ -409,7 +410,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold text-gray-900 dark:text-white">
                 <span className="font-mono">{formatNumber(acquisitionData.swap)}</span>
                 <span className="text-sm text-gray-500 ml-1 font-mono">
-                  ({((acquisitionData.swap / totalAcquisition) * 100).toFixed(1)}%)
+                  ({safeToFixed((acquisitionData.swap / totalAcquisition) * 100, 1)}%)
                 </span>
               </div>
             </div>
@@ -418,7 +419,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold text-gray-900 dark:text-white">
                 <span className="font-mono">{formatNumber(acquisitionData.transfer)}</span>
                 <span className="text-sm text-gray-500 ml-1 font-mono">
-                  ({((acquisitionData.transfer / totalAcquisition) * 100).toFixed(1)}%)
+                  ({safeToFixed((acquisitionData.transfer / totalAcquisition) * 100, 1)}%)
                 </span>
               </div>
             </div>
@@ -427,7 +428,7 @@ const HolderStats: React.FC<HolderStatsProps> = ({ data, chain }) => {
               <div className="font-semibold text-gray-900 dark:text-white">
                 <span className="font-mono">{formatNumber(acquisitionData.airdrop)}</span>
                 <span className="text-sm text-gray-500 ml-1 font-mono">
-                  ({((acquisitionData.airdrop / totalAcquisition) * 100).toFixed(1)}%)
+                  ({safeToFixed((acquisitionData.airdrop / totalAcquisition) * 100, 1)}%)
                 </span>
               </div>
             </div>

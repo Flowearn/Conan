@@ -7,6 +7,7 @@ import AIAnalysis from '@/components/analysis/AIAnalysis';
 import HolderStats from '@/components/analysis/HolderStats';
 import ActivityStatsOverview from '@/components/token/ActivityStatsOverview';
 import { useTranslations } from 'next-intl';
+import { safeFormatSignedPercentage, safeFormatPercentage, formatAdvancedPrice } from '@/utils/formatters';
 
 interface TimeFrameData {
   '30m': string | null;
@@ -218,20 +219,7 @@ export default function TokenPage() {
     }
     
     // Case 2: Convert to numeric value and format
-    let numericValue: number;
-    if (typeof priceChange === 'number') {
-      numericValue = priceChange;
-    } else {
-      // Try to parse string to number
-      const parsed = parseFloat(priceChange);
-      if (isNaN(parsed)) {
-        return 'N/A';
-      }
-      numericValue = parsed;
-    }
-    
-    // Format with 2 decimal places and add +/- sign and %
-    return `${numericValue > 0 ? '+' : ''}${numericValue.toFixed(2)}%`;
+    return safeFormatSignedPercentage(priceChange, 2);
   };
 
   // Helper function to format address
@@ -484,7 +472,7 @@ export default function TokenPage() {
             <div className="flex flex-col items-end">
               <div className="flex items-baseline gap-2">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white font-mono">
-                  {tokenData.tokenOverview.priceFormatted || '$0.00'}
+                  {formatAdvancedPrice(tokenData.tokenOverview.price, '$', '$0.00')}
                 </div>
                 <div className={`${getPriceChangeClass(tokenData.tokenOverview.priceChange24h)} font-mono`}>
                   {formatPriceChange(tokenData.tokenOverview.priceChange24h)}
@@ -592,7 +580,7 @@ export default function TokenPage() {
                 {tokenData.holderStats?.holderChange?.['24h'] && (
                   <div className={`text-xs ${getPriceChangeClass(tokenData.holderStats.holderChange['24h'].changePercent)} font-mono`}>
                     {tokenData.holderStats.holderChange['24h'].changePercent > 0 ? '+' : ''}
-                    {tokenData.holderStats.holderChange['24h'].changePercent.toFixed(2)}%
+                    {safeFormatPercentage(tokenData.holderStats.holderChange['24h'].changePercent, 2)}
                   </div>
                 )}
               </div>

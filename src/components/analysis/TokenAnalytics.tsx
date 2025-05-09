@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { formatLargeNumber } from '@/utils/formatters';
 
 // Define the interface for raw analytics data
 interface RawAnalyticsData {
@@ -26,35 +27,6 @@ interface TokenAnalyticsProps {
     }
   } | null;
 }
-
-// Format currency with suffix (K, M, B)
-const safeCurrencySuffix = (value: number | string | undefined | null): string => {
-  try {
-    if (value === undefined || value === null) return '$0';
-    
-    // If it's a string, try to convert to number
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    
-    // Check if it's a number and not NaN
-    if (typeof numValue !== 'number' || isNaN(numValue) || numValue === 0) return '$0';
-    
-    const absValue = Math.abs(numValue);
-    const sign = numValue < 0 ? '-' : '';
-
-    if (absValue < 1000) {
-      return `${sign}$${absValue.toFixed(2)}`;
-    } else if (absValue < 1_000_000) {
-      return `${sign}$${(absValue / 1000).toFixed(1)}K`;
-    } else if (absValue < 1_000_000_000) {
-      return `${sign}$${(absValue / 1_000_000).toFixed(1)}M`;
-    } else {
-      return `${sign}$${(absValue / 1_000_000_000).toFixed(1)}B`;
-    }
-  } catch (error) {
-    console.error('Error in safeCurrencySuffix:', error);
-    return '$0';
-  }
-};
 
 const timeFrames = ['24h', '6h', '1h', '5m'] as const;
 
@@ -95,13 +67,13 @@ const TokenAnalytics: React.FC<TokenAnalyticsProps> = ({ data }) => {
               // Get buy volume and format it
               const rawBuyVolume = data.data?.rawData?.totalBuyVolume?.[timeFrame];
               console.log(`[DEBUG] Formatting Buy Volume for ${timeFrame}: Input =`, rawBuyVolume, `(Type: ${typeof rawBuyVolume})`);
-              const formattedBuyVolume = safeCurrencySuffix(rawBuyVolume);
+              const formattedBuyVolume = formatLargeNumber(rawBuyVolume, '$', '$0');
               console.log(`[DEBUG] Formatting Buy Volume for ${timeFrame}: Output =`, formattedBuyVolume);
               
               // Get sell volume and format it
               const rawSellVolume = data.data?.rawData?.totalSellVolume?.[timeFrame];
               console.log(`[DEBUG] Formatting Sell Volume for ${timeFrame}: Input =`, rawSellVolume, `(Type: ${typeof rawSellVolume})`);
-              const formattedSellVolume = safeCurrencySuffix(rawSellVolume);
+              const formattedSellVolume = formatLargeNumber(rawSellVolume, '$', '$0');
               console.log(`[DEBUG] Formatting Sell Volume for ${timeFrame}: Output =`, formattedSellVolume);
               
               return (
