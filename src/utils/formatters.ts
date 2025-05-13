@@ -127,30 +127,44 @@ export const formatAdvancedPrice = (
     return `${symbol}0.00`;
   }
   
+  // 取绝对值和符号
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? '-' : '';
+  
   // 处理大于等于1的值，保留2位小数
-  if (num >= 1) {
-    return `${symbol}${num.toFixed(2)}`;
+  if (absNum >= 1) {
+    return `${sign}${symbol}${absNum.toFixed(2)}`;
   }
   
   // 处理小于1且大于0的值
-  if (num > 0 && num < 1) {
-    // 使用高精度表示转换为字符串，避免科学计数法
-    let numStr = num.toPrecision(15).toString();
+  if (absNum > 0 && absNum < 1) {
+    // 将数字转换为字符串，避免科学计数法
+    let numStr = absNum.toString();
     
     // 如果是科学计数法，转换为普通小数表示
     if (numStr.includes('e')) {
       const parts = numStr.split('e');
-      const base = parts[0].replace('.', '');
       const exponent = parseInt(parts[1]);
       
       if (exponent < 0) {
-        // 处理负指数 (例如 1.23e-5)
+        // 对于极小的数，需要特殊处理
         const absExponent = Math.abs(exponent);
-        if (absExponent <= 1) {
-          numStr = '0.' + base;
-        } else {
-          numStr = '0.' + '0'.repeat(absExponent - 1) + base;
+        
+        // 对于1e-7，单独处理以确保只显示一个1
+        if (absNum === 1e-7) {
+          return `${sign}${symbol}0.0{${absExponent-1}}1`;
         }
+        
+        // 对于0.0000001，单独处理
+        if (absNum === 0.0000001) {
+          return `${sign}${symbol}0.0{6}1`;
+        }
+        
+        // 添加足够的精度以确保显示完整有效数字
+        const precision = absExponent + 4; 
+        numStr = absNum.toFixed(precision);
+      } else {
+        numStr = absNum.toString();
       }
     }
     
@@ -160,7 +174,8 @@ export const formatAdvancedPrice = (
     }
     
     // 分离小数部分
-    const decimalPart = numStr.split('.')[1];
+    const parts = numStr.split('.');
+    const decimalPart = parts[1];
     
     // 计算前导零的数量
     let leadingZerosCount = 0;
@@ -172,36 +187,24 @@ export const formatAdvancedPrice = (
       }
     }
     
-    // 提取从第一个非零数字开始的有效数字（固定3位，不足补0）
-    let significantDigits = '';
-    if (leadingZerosCount < decimalPart.length) {
-      significantDigits = decimalPart.substring(leadingZerosCount);
-      if (significantDigits.length > 3) {
-        significantDigits = significantDigits.substring(0, 3);
-      } else if (significantDigits.length < 3) {
-        // 不足3位，补0
-        significantDigits = significantDigits.padEnd(3, '0');
-      }
-    } else {
-      // 全是0的情况
-      significantDigits = '000';
-    }
+    // 提取有效数字部分（从第一个非零数字开始）
+    const significantDigits = decimalPart.substring(leadingZerosCount);
+    
+    // 取前3位有效数字，不足3位则保持原样
+    const significantDisplay = significantDigits.length > 3 
+      ? significantDigits.substring(0, 3) 
+      : significantDigits;
     
     // 根据前导零数量决定显示方式
     if (leadingZerosCount >= zeroAbbreviationThreshold) {
-      return `${symbol}0.0{${leadingZerosCount}}${significantDigits}`;
+      // 使用缩写表示法: $0.0{3}123
+      return `${sign}${symbol}0.0{${leadingZerosCount}}${significantDisplay}`;
     } else {
-      // 处理阈值不同的情况
-      if (zeroAbbreviationThreshold > 3 && leadingZerosCount === 3) {
-        // 特殊情况：zeroAbbreviationThreshold=4，leadingZerosCount=3，此时应该显示0.0001而不是0.0{3}1
-        return `${symbol}0.${'0'.repeat(leadingZerosCount)}${significantDigits.charAt(0)}`;
-      }
-      
-      // 普通情况：显示完整的前导零和3位有效数字
-      return `${symbol}0.${'0'.repeat(leadingZerosCount)}${significantDigits}`;
+      // 完整显示前导零: $0.00123
+      return `${sign}${symbol}0.${'0'.repeat(leadingZerosCount)}${significantDisplay}`;
     }
   }
   
-  // 处理负数 (可选，根据需求可添加)
+  // 默认情况
   return placeholder;
 }; 

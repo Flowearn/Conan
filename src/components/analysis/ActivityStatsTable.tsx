@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { safeFormatSignedPercentage } from '@/utils/formatters';
 
 // Define types for the component props
 interface TimeFrameData {
@@ -55,6 +56,14 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
     // Return the value which could be null
     return dataObj[timeframe];
   };
+
+  // Helper function to format percentage values
+  const formatPercentValue = (value: string | null | undefined, isPercentage: boolean = true): string => {
+    if (isPercentage) {
+      return safeFormatSignedPercentage(value, 2);
+    }
+    return value ?? 'N/A';
+  };
   
   // Helper function to get cell color based on value (for percentage changes)
   const getPercentageColorFromString = (value: string | null | undefined): string => {
@@ -104,12 +113,13 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
             </td>
             {timeframes.map(timeframe => {
               const value = safeGetTimeFrameValue(tokenAnalytics.priceChangePercent, timeframe);
+              const formattedValue = formatPercentValue(value);
               return (
                 <td 
                   key={timeframe} 
-                  className={`px-4 py-2 text-right ${getPercentageColorFromString(value)}`}
+                  className={`px-4 py-2 text-right ${getPercentageColorFromString(formattedValue)}`}
                 >
-                  {value ?? 'N/A'}
+                  {formattedValue}
                 </td>
               );
             })}
@@ -140,12 +150,13 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
             </td>
             {timeframes.map(timeframe => {
               const value = safeGetTimeFrameValue(tokenAnalytics.uniqueWalletsChangePercent, timeframe);
+              const formattedValue = formatPercentValue(value);
               return (
                 <td 
                   key={timeframe} 
-                  className={`px-4 py-2 text-right ${getPercentageColorFromString(value)}`}
+                  className={`px-4 py-2 text-right ${getPercentageColorFromString(formattedValue)}`}
                 >
-                  {value ?? 'N/A'}
+                  {formattedValue}
                 </td>
               );
             })}
@@ -194,12 +205,13 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
             </td>
             {timeframes.map(timeframe => {
               const value = safeGetTimeFrameValue(tokenAnalytics.tradeCountChangePercent, timeframe);
+              const formattedValue = formatPercentValue(value);
               return (
                 <td 
                   key={timeframe} 
-                  className={`px-4 py-2 text-right ${getPercentageColorFromString(value)}`}
+                  className={`px-4 py-2 text-right ${getPercentageColorFromString(formattedValue)}`}
                 >
-                  {value ?? 'N/A'}
+                  {formattedValue}
                 </td>
               );
             })}
@@ -248,12 +260,13 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
             </td>
             {timeframes.map(timeframe => {
               const value = safeGetTimeFrameValue(tokenAnalytics.volumeChangePercent, timeframe);
+              const formattedValue = formatPercentValue(value);
               return (
                 <td 
                   key={timeframe} 
-                  className={`px-4 py-2 text-right ${getPercentageColorFromString(value)}`}
+                  className={`px-4 py-2 text-right ${getPercentageColorFromString(formattedValue)}`}
                 >
-                  {value ?? 'N/A'}
+                  {formattedValue}
                 </td>
               );
             })}

@@ -10,11 +10,11 @@ import { useTranslations } from 'next-intl';
 import { safeFormatSignedPercentage, safeFormatPercentage, formatAdvancedPrice } from '@/utils/formatters';
 
 interface TimeFrameData {
+  '1m': string | null;
   '30m': string | null;
-  '1h': string | null;
   '2h': string | null;
-  '4h': string | null;
-  '8h': string | null;
+  '6h': string | null;
+  '12h': string | null;
   '24h': string | null;
   [key: string]: string | null;
 }
@@ -750,12 +750,12 @@ export default function TokenPage() {
                         </div>
                       </td>
                       <td className="px-2 py-2 whitespace-nowrap text-xs text-right">
-                        <span className="text-green-600 dark:text-green-400 font-medium font-mono">
+                        <span className="text-green-500 dark:text-green-400 font-medium font-mono">
                           {trader.buy?.count || 0}
                         </span>
                       </td>
                       <td className="px-2 py-2 whitespace-nowrap text-xs text-right">
-                        <span className="text-red-600 dark:text-red-400 font-medium font-mono">
+                        <span className="text-red-500 dark:text-red-400 font-medium font-mono">
                           {trader.sell?.count || 0}
                         </span>
                       </td>

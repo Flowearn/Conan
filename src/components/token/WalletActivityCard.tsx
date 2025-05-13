@@ -1,25 +1,33 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 
+// 新类型定义
+interface TimeFrameValueObj {
+  value: string | null; // 使用string类型，因为后端已预格式化
+  actualTimeframe: string;
+}
+
 interface TimeFrameValues {
-  '30m': string | null; 
-  '1h': string | null; 
-  '2h': string | null; 
-  '4h': string | null; 
-  '8h': string | null; 
-  '24h': string | null;
-  [key: string]: string | null; // 添加索引签名以支持动态访问
+  '1m': TimeFrameValueObj | undefined;
+  '30m': TimeFrameValueObj | undefined;
+  '2h': TimeFrameValueObj | undefined;
+  '6h': TimeFrameValueObj | undefined;
+  '12h': TimeFrameValueObj | undefined;
+  '24h': TimeFrameValueObj | undefined;
+  [key: string]: TimeFrameValueObj | undefined;
 }
 
 interface WalletActivityCardProps {
   uniqueWalletsData?: TimeFrameValues | null;     // "Unique Wallets" 的时间序列数据
   walletChangePercentData?: TimeFrameValues | null; // "Wallet Change (%)" 的时间序列数据
+  timeframes: readonly string[];                  // 标准时间维度数组
   isLoading?: boolean;                             // 可选的加载状态
 }
 
 const WalletActivityCard: React.FC<WalletActivityCardProps> = ({
   uniqueWalletsData,
   walletChangePercentData,
+  timeframes,
   isLoading = false
 }) => {
   const t = useTranslations('TokenAnalytics');
@@ -28,24 +36,43 @@ const WalletActivityCard: React.FC<WalletActivityCardProps> = ({
   const hasData = uniqueWalletsData || walletChangePercentData;
 
   // 根据百分比值的符号确定文本颜色
-  const getColorClass = (value: string | null): string => {
-    if (!value) return 'text-gray-500 dark:text-gray-400';
-    if (value.includes('+')) return 'text-green-500 dark:text-green-400';
-    if (value.includes('-')) return 'text-red-500 dark:text-red-400';
+  const getColorClass = (value: string | number | null | undefined): string => {
+    // 如果值为null或undefined，直接返回中性颜色
+    if (value === null || value === undefined || value === '') {
+      return 'text-gray-500 dark:text-gray-400'; // 中性/默认颜色
+    }
+
+    // 安全地将任何输入值转换为字符串
+    const stringValue = String(value);
+    
+    // 检查stringValue是否有includes方法（应该总是有的，因为我们调用了String()）
+    if (typeof stringValue.includes !== 'function') {
+      return 'text-gray-500 dark:text-gray-400'; // 类型异常，返回中性颜色
+    }
+
+    if (stringValue.includes('+')) {
+      return 'text-green-500 dark:text-green-400';
+    }
+    if (stringValue.includes('-')) {
+      return 'text-red-500 dark:text-red-400';
+    }
     
     // 处理不带符号的数值 (例如"5.26%")
     // 先去掉百分比符号，然后尝试转换为数值
-    const numValue = parseFloat(value.replace('%', '').trim());
+    const numValue = parseFloat(stringValue.replace('%', '').trim());
     if (!isNaN(numValue)) {
       if (numValue > 0) return 'text-green-500 dark:text-green-400';
       if (numValue < 0) return 'text-red-500 dark:text-red-400';
     }
     
+    // 处理"0.00%"、"0%"和"0.00"等零值情况
+    if (stringValue === '0.00%' || stringValue === '0%' || stringValue === '0.00' || stringValue === '0') {
+      return 'text-gray-700 dark:text-gray-300'; // 零值使用中性颜色
+    }
+    
+    // 默认返回中性颜色
     return 'text-gray-500 dark:text-gray-400';
   };
-
-  // 时间标签数组
-  const timeLabels = ['30m', '1h', '2h', '4h', '8h', '24h'];
 
   if (isLoading) {
     return (
@@ -54,7 +81,7 @@ const WalletActivityCard: React.FC<WalletActivityCardProps> = ({
           {t('walletActivityCardTitle')}
         </h5>
         <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
-          {timeLabels.map((time) => (
+          {timeframes.map((time) => (
             <div key={time} className="bg-indigo-900/20 rounded p-2">
               <div className="h-4 bg-gray-600 rounded mb-2"></div>
               <div className="h-3 bg-gray-600 rounded"></div>
@@ -88,35 +115,39 @@ const WalletActivityCard: React.FC<WalletActivityCardProps> = ({
       {/* 时间数据网格 */}
       <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 text-xs">
         {/* 为每个时间点创建一个区块 */}
-        {timeLabels.map((time) => (
-          <div 
-            key={time} 
-            className="bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1.5 rounded"
-          >
-            {/* 时间标签和百分比变化 */}
-            <div className="flex justify-between items-baseline mb-2">
-              <span className="text-gray-700 dark:text-gray-300 font-medium font-mono">{time}</span>
-              {walletChangePercentData && walletChangePercentData[time] && (
-                <span className={`font-mono font-medium ${getColorClass(walletChangePercentData[time])}`}>
-                  {walletChangePercentData[time]}
+        {timeframes.map((time) => {
+          const walletsObj = uniqueWalletsData?.[time];
+          const changeObj = walletChangePercentData?.[time];
+          return (
+            <div 
+              key={time} 
+              className="bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1.5 rounded"
+            >
+              {/* 时间标签和百分比变化 */}
+              <div className="flex justify-between items-baseline mb-2">
+                <span className="text-gray-700 dark:text-gray-300 font-medium font-mono">
+                  {/* 直接使用actualTimeframe作为时间标签，与PriceChangeCard一致 */}
+                  {walletsObj?.actualTimeframe ?? time}
                 </span>
-              )}
-            </div>
-            
-            {/* 数据显示区域，其他非百分比指标 */}
-            <div className="space-y-2">
-              {/* 独立钱包数据 */}
-              {uniqueWalletsData && uniqueWalletsData[time] && (
+                <span className={`font-mono font-medium ${getColorClass(changeObj?.value)}`}>
+                  {changeObj?.value ?? 'N/A'}
+                </span>
+              </div>
+              
+              {/* 数据显示区域，其他非百分比指标 */}
+              <div className="space-y-2">
+                {/* 独立钱包数据 - 始终显示，即使数据不存在 */}
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-700 dark:text-gray-400 font-medium font-mono">{t('walletCountLabel')}</span>
                   <span className="font-mono font-medium text-gray-900 dark:text-white">
-                    {uniqueWalletsData[time]}
+                    {/* 直接显示后端提供的预格式化字符串，不做任何格式化 */}
+                    {walletsObj?.value ?? 'N/A'}
                   </span>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -1,20 +1,27 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 
+// 新类型定义
+interface TimeFrameValueObj {
+  value: string | null; // 使用string类型，因为后端已预格式化
+  actualTimeframe: string;
+}
+
 interface TimeFrameValues {
-  '30m': string | null; 
-  '1h': string | null; 
-  '2h': string | null; 
-  '4h': string | null; 
-  '8h': string | null; 
-  '24h': string | null;
-  [key: string]: string | null; // 添加索引签名以支持动态访问
+  '1m': TimeFrameValueObj | undefined;
+  '30m': TimeFrameValueObj | undefined;
+  '2h': TimeFrameValueObj | undefined;
+  '6h': TimeFrameValueObj | undefined;
+  '12h': TimeFrameValueObj | undefined;
+  '24h': TimeFrameValueObj | undefined;
+  [key: string]: TimeFrameValueObj | undefined;
 }
 
 interface TradeVolumesCardProps {
   buyVolumeUSDData?: TimeFrameValues | null;
   sellVolumeUSDData?: TimeFrameValues | null;
   volumeChangePercentData?: TimeFrameValues | null;
+  timeframes: readonly string[];
   isLoading?: boolean;
 }
 
@@ -22,6 +29,7 @@ const TradeVolumesCard: React.FC<TradeVolumesCardProps> = ({
   buyVolumeUSDData,
   sellVolumeUSDData,
   volumeChangePercentData,
+  timeframes,
   isLoading = false
 }) => {
   const t = useTranslations('TokenAnalytics');
@@ -30,7 +38,7 @@ const TradeVolumesCard: React.FC<TradeVolumesCardProps> = ({
   const hasData = buyVolumeUSDData || sellVolumeUSDData || volumeChangePercentData;
 
   // 根据百分比值的符号确定文本颜色
-  const getColorClass = (value: string | null): string => {
+  const getColorClass = (value: string | null | undefined): string => {
     if (!value) return 'text-gray-500 dark:text-gray-400';
     if (value.includes('+')) return 'text-green-500 dark:text-green-400';
     if (value.includes('-')) return 'text-red-500 dark:text-red-400';
@@ -46,9 +54,6 @@ const TradeVolumesCard: React.FC<TradeVolumesCardProps> = ({
     return 'text-gray-500 dark:text-gray-400';
   };
 
-  // 时间标签数组
-  const timeLabels = ['30m', '1h', '2h', '4h', '8h', '24h'];
-
   if (isLoading) {
     return (
       <div className="animate-pulse">
@@ -56,7 +61,7 @@ const TradeVolumesCard: React.FC<TradeVolumesCardProps> = ({
           {t('tradeVolumesCardTitle')}
         </h5>
         <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
-          {timeLabels.map((time) => (
+          {timeframes.map((time) => (
             <div key={time} className="bg-indigo-900/20 rounded p-2">
               <div className="h-4 bg-gray-600 rounded mb-2"></div>
               <div className="h-3 bg-gray-600 rounded mb-2"></div>
@@ -91,45 +96,47 @@ const TradeVolumesCard: React.FC<TradeVolumesCardProps> = ({
       {/* 时间数据网格 */}
       <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 text-xs">
         {/* 为每个时间点创建一个区块 */}
-        {timeLabels.map((time) => (
-          <div 
-            key={time} 
-            className="bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1.5 rounded"
-          >
-            {/* 时间标签和百分比变化 */}
-            <div className="flex justify-between items-baseline mb-2">
-              <span className="text-gray-700 dark:text-gray-300 font-medium font-mono">{time}</span>
-              {volumeChangePercentData && (
-                <span className={`font-mono font-medium ${getColorClass(volumeChangePercentData[time])}`}>
-                  {volumeChangePercentData[time] || '0%'}
+        {timeframes.map((time) => {
+          const buyObj = buyVolumeUSDData?.[time];
+          const sellObj = sellVolumeUSDData?.[time];
+          const changeObj = volumeChangePercentData?.[time];
+          return (
+            <div 
+              key={time} 
+              className="bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1.5 rounded"
+            >
+              {/* 时间标签和百分比变化 */}
+              <div className="flex justify-between items-baseline mb-2">
+                <span className="text-gray-700 dark:text-gray-300 font-medium font-mono">
+                  {/* 直接使用actualTimeframe作为时间标签，与PriceChangeCard一致 */}
+                  {buyObj?.actualTimeframe ?? time}
                 </span>
-              )}
-            </div>
-            
-            {/* 其他非百分比指标垂直排列 */}
-            <div className="space-y-2">
-              {/* Buy Volume (USD) 数据 */}
-              {buyVolumeUSDData && (
+                <span className={`font-mono font-medium ${getColorClass(changeObj?.value)}`}>
+                  {changeObj?.value ?? 'N/A'}
+                </span>
+              </div>
+              {/* 其他非百分比指标垂直排列 - 始终显示 */}
+              <div className="space-y-2">
+                {/* Buy Volume (USD) 数据 */}
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-green-500 dark:text-green-400 font-medium font-mono">{t('buyVolumeLabel')}</span>
                   <span className="font-mono font-medium text-gray-900 dark:text-white">
-                    {buyVolumeUSDData[time] || 'N/A'}
+                    {/* 直接显示后端提供的预格式化字符串，不做任何格式化 */}
+                    {buyObj?.value ?? 'N/A'}
                   </span>
                 </div>
-              )}
-              
-              {/* Sell Volume (USD) 数据 */}
-              {sellVolumeUSDData && (
+                {/* Sell Volume (USD) 数据 */}
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-red-500 dark:text-red-400 font-medium font-mono">{t('sellVolumeLabel')}</span>
                   <span className="font-mono font-medium text-gray-900 dark:text-white">
-                    {sellVolumeUSDData[time] || 'N/A'}
+                    {/* 直接显示后端提供的预格式化字符串，不做任何格式化 */}
+                    {sellObj?.value ?? 'N/A'}
                   </span>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
