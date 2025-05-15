@@ -1,25 +1,10 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
-
-// 新类型定义
-interface TimeFrameValueObj {
-  value: string | null; // 使用string类型，因为后端已预格式化
-  actualTimeframe: string;
-}
-
-interface TimeFrameValues {
-  '1m': TimeFrameValueObj | undefined;
-  '30m': TimeFrameValueObj | undefined;
-  '2h': TimeFrameValueObj | undefined;
-  '6h': TimeFrameValueObj | undefined;
-  '12h': TimeFrameValueObj | undefined;
-  '24h': TimeFrameValueObj | undefined;
-  [key: string]: TimeFrameValueObj | undefined;
-}
+import type { MetricTimeFrames } from '@/types/token';
 
 interface WalletActivityCardProps {
-  uniqueWalletsData?: TimeFrameValues | null;     // "Unique Wallets" 的时间序列数据
-  walletChangePercentData?: TimeFrameValues | null; // "Wallet Change (%)" 的时间序列数据
+  uniqueWalletsData?: MetricTimeFrames | null;     // "Unique Wallets" 的时间序列数据
+  walletChangePercentData?: MetricTimeFrames | null; // "Wallet Change (%)" 的时间序列数据
   timeframes: readonly string[];                  // 标准时间维度数组
   isLoading?: boolean;                             // 可选的加载状态
 }

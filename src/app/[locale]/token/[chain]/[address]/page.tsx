@@ -8,28 +8,7 @@ import HolderStats from '@/components/analysis/HolderStats';
 import ActivityStatsOverview from '@/components/token/ActivityStatsOverview';
 import { useTranslations } from 'next-intl';
 import { safeFormatSignedPercentage, safeFormatPercentage, formatAdvancedPrice } from '@/utils/formatters';
-
-interface TimeFrameData {
-  '1m': string | null;
-  '30m': string | null;
-  '2h': string | null;
-  '6h': string | null;
-  '12h': string | null;
-  '24h': string | null;
-  [key: string]: string | null;
-}
-
-interface TokenAnalyticsData {
-  priceChangePercent: TimeFrameData;
-  uniqueWallets: TimeFrameData;
-  uniqueWalletsChangePercent: TimeFrameData;
-  buyCounts: TimeFrameData;
-  sellCounts: TimeFrameData;
-  tradeCountChangePercent: TimeFrameData;
-  buyVolumeUSD: TimeFrameData;
-  sellVolumeUSD: TimeFrameData;
-  volumeChangePercent: TimeFrameData;
-}
+import type { TokenAnalyticsData } from '@/types/token';
 
 interface OHLCVDataPoint {
   timestamp: number;
@@ -116,7 +95,7 @@ interface TokenData {
     total_supply?: string | number;
     market_cap_usd?: number;
   };
-  tokenAnalytics?: Record<string, unknown>;
+  tokenAnalytics?: TokenAnalyticsData;
 }
 
 // Define AiAnalysisData type based on the existing aiAnalysis field structure
@@ -695,7 +674,7 @@ export default function TokenPage() {
             </h2>
             
             <div className="bg-white dark:bg-gray-800">
-              <ActivityStatsOverview tokenAnalytics={tokenData.tokenAnalytics as unknown as TokenAnalyticsData} />
+              <ActivityStatsOverview tokenAnalytics={tokenData.tokenAnalytics} />
             </div>
           </div>
         </div>

@@ -3,39 +3,12 @@ import PriceChangeCard from './PriceChangeCard';
 import WalletActivityCard from './WalletActivityCard';
 import TradeCountsCard from './TradeCountsCard';
 import TradeVolumesCard from './TradeVolumesCard';
+import type { TokenAnalyticsData, MetricTimeFrames } from '@/types/token';
 
 // 定义标准时间维度数组
 const STANDARD_ACTIVITY_TIMEFRAMES = ['1m', '30m', '2h', '6h', '12h', '24h'] as const;
 
-// 新类型定义
-interface TimeFrameValueObj {
-  value: string | null;
-  actualTimeframe: string;
-}
-
-// 兼容所有子组件的时间帧数据类型
-interface TimeFrameValues {
-  '1m': TimeFrameValueObj | undefined;
-  '30m': TimeFrameValueObj | undefined;
-  '2h': TimeFrameValueObj | undefined;
-  '6h': TimeFrameValueObj | undefined;
-  '12h': TimeFrameValueObj | undefined;
-  '24h': TimeFrameValueObj | undefined;
-  [key: string]: TimeFrameValueObj | undefined;
-}
-
-interface TokenAnalyticsData {
-  priceChangePercent: TimeFrameValues;
-  uniqueWallets: TimeFrameValues;
-  uniqueWalletsChangePercent: TimeFrameValues;
-  buyCounts: TimeFrameValues;
-  sellCounts: TimeFrameValues;
-  tradeCountChangePercent: TimeFrameValues;
-  buyVolumeUSD: TimeFrameValues;
-  sellVolumeUSD: TimeFrameValues;
-  volumeChangePercent: TimeFrameValues;
-}
-
+// 为组件内部使用定义类型
 interface TimePointData {
   time: string;
   displayValue: string;
@@ -57,7 +30,7 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
   const getPriceChangeData = (): TimePointData[] | null => {
     if (!tokenAnalytics?.priceChangePercent) return null;
     return timeLabels.map(timeLabel => {
-      const obj = tokenAnalytics.priceChangePercent[timeLabel];
+      const obj = tokenAnalytics.priceChangePercent?.[timeLabel];
       const value = obj?.value ?? '';
       const actualTimeframe = obj?.actualTimeframe ?? timeLabel;
       return {
@@ -69,8 +42,8 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
 
   // 处理钱包活动数据
   const getWalletsData = () => {
-    if (!tokenAnalytics) return { wallets: {} as TimeFrameValues, change: {} as TimeFrameValues };
-    const wallets: TimeFrameValues = {
+    if (!tokenAnalytics) return { wallets: {} as MetricTimeFrames, change: {} as MetricTimeFrames };
+    const wallets: MetricTimeFrames = {
       '1m': tokenAnalytics.uniqueWallets?.['1m'],
       '30m': tokenAnalytics.uniqueWallets?.['30m'],
       '2h': tokenAnalytics.uniqueWallets?.['2h'],
@@ -78,7 +51,7 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
       '12h': tokenAnalytics.uniqueWallets?.['12h'],
       '24h': tokenAnalytics.uniqueWallets?.['24h']
     };
-    const change: TimeFrameValues = {
+    const change: MetricTimeFrames = {
       '1m': tokenAnalytics.uniqueWalletsChangePercent?.['1m'],
       '30m': tokenAnalytics.uniqueWalletsChangePercent?.['30m'],
       '2h': tokenAnalytics.uniqueWalletsChangePercent?.['2h'],
@@ -91,8 +64,8 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
 
   // 处理交易计数数据
   const getTradeCountsData = () => {
-    if (!tokenAnalytics) return { buy: {} as TimeFrameValues, sell: {} as TimeFrameValues, change: {} as TimeFrameValues };
-    const buy: TimeFrameValues = {
+    if (!tokenAnalytics) return { buy: {} as MetricTimeFrames, sell: {} as MetricTimeFrames, change: {} as MetricTimeFrames };
+    const buy: MetricTimeFrames = {
       '1m': tokenAnalytics.buyCounts?.['1m'],
       '30m': tokenAnalytics.buyCounts?.['30m'],
       '2h': tokenAnalytics.buyCounts?.['2h'],
@@ -100,7 +73,7 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
       '12h': tokenAnalytics.buyCounts?.['12h'],
       '24h': tokenAnalytics.buyCounts?.['24h']
     };
-    const sell: TimeFrameValues = {
+    const sell: MetricTimeFrames = {
       '1m': tokenAnalytics.sellCounts?.['1m'],
       '30m': tokenAnalytics.sellCounts?.['30m'],
       '2h': tokenAnalytics.sellCounts?.['2h'],
@@ -108,7 +81,7 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
       '12h': tokenAnalytics.sellCounts?.['12h'],
       '24h': tokenAnalytics.sellCounts?.['24h']
     };
-    const change: TimeFrameValues = {
+    const change: MetricTimeFrames = {
       '1m': tokenAnalytics.tradeCountChangePercent?.['1m'],
       '30m': tokenAnalytics.tradeCountChangePercent?.['30m'],
       '2h': tokenAnalytics.tradeCountChangePercent?.['2h'],
@@ -121,8 +94,8 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
 
   // 处理交易量数据
   const getTradeVolumesData = () => {
-    if (!tokenAnalytics) return { buy: {} as TimeFrameValues, sell: {} as TimeFrameValues, change: {} as TimeFrameValues };
-    const buy: TimeFrameValues = {
+    if (!tokenAnalytics) return { buy: {} as MetricTimeFrames, sell: {} as MetricTimeFrames, change: {} as MetricTimeFrames };
+    const buy: MetricTimeFrames = {
       '1m': tokenAnalytics.buyVolumeUSD?.['1m'],
       '30m': tokenAnalytics.buyVolumeUSD?.['30m'],
       '2h': tokenAnalytics.buyVolumeUSD?.['2h'],
@@ -130,7 +103,7 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
       '12h': tokenAnalytics.buyVolumeUSD?.['12h'],
       '24h': tokenAnalytics.buyVolumeUSD?.['24h']
     };
-    const sell: TimeFrameValues = {
+    const sell: MetricTimeFrames = {
       '1m': tokenAnalytics.sellVolumeUSD?.['1m'],
       '30m': tokenAnalytics.sellVolumeUSD?.['30m'],
       '2h': tokenAnalytics.sellVolumeUSD?.['2h'],
@@ -138,7 +111,7 @@ const ActivityStatsOverview: React.FC<ActivityStatsOverviewProps> = ({
       '12h': tokenAnalytics.sellVolumeUSD?.['12h'],
       '24h': tokenAnalytics.sellVolumeUSD?.['24h']
     };
-    const change: TimeFrameValues = {
+    const change: MetricTimeFrames = {
       '1m': tokenAnalytics.volumeChangePercent?.['1m'],
       '30m': tokenAnalytics.volumeChangePercent?.['30m'],
       '2h': tokenAnalytics.volumeChangePercent?.['2h'],

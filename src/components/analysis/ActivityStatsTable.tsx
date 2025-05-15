@@ -1,33 +1,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { safeFormatSignedPercentage } from '@/utils/formatters';
-
-// Define types for the component props
-interface TimeFrameData {
-  '30m': string | null;
-  '1h': string | null;
-  '2h': string | null;
-  '4h': string | null;
-  '8h': string | null;
-  '24h': string | null;
-  [key: string]: string | null; // Allow indexing with timeframe string
-}
-
-type TimeFrameValue = string | null;
-type TimeFrameRecord = Record<string, TimeFrameValue>;
-
-interface TokenAnalyticsData {
-  priceChangePercent?: TimeFrameData | TimeFrameRecord | null;
-  uniqueWallets?: TimeFrameData | TimeFrameRecord | null;
-  uniqueWalletsChangePercent?: TimeFrameData | TimeFrameRecord | null;
-  buyCounts?: TimeFrameData | TimeFrameRecord | null;
-  sellCounts?: TimeFrameData | TimeFrameRecord | null;
-  tradeCountChangePercent?: TimeFrameData | TimeFrameRecord | null;
-  buyVolumeUSD?: TimeFrameData | TimeFrameRecord | null;
-  sellVolumeUSD?: TimeFrameData | TimeFrameRecord | null;
-  volumeChangePercent?: TimeFrameData | TimeFrameRecord | null;
-  [key: string]: TimeFrameData | TimeFrameRecord | null | undefined; // 允许索引任意字段
-}
+import type { TokenAnalyticsData, TimeFrameValueObj } from '@/types/token';
 
 interface ActivityStatsTableProps {
   tokenAnalytics: TokenAnalyticsData;
@@ -42,7 +16,7 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
   const timeframes = ['30m', '1h', '2h', '4h', '8h', '24h'];
   
   // Helper function to safely access time frame data
-  const safeGetTimeFrameValue = (dataObj: TimeFrameData | TimeFrameRecord | null | undefined, timeframe: string): TimeFrameValue => {
+  const safeGetTimeFrameValue = (dataObj: Record<string, unknown> | null | undefined, timeframe: string): string | null => {
     // First check if the data object exists
     if (!dataObj || typeof dataObj !== 'object') {
       return null;
@@ -53,8 +27,16 @@ const ActivityStatsTable: React.FC<ActivityStatsTableProps> = ({ tokenAnalytics,
       return null;
     }
     
-    // Return the value which could be null
-    return dataObj[timeframe];
+    // Handle both old format (string | null) and new format (TimeFrameValueObj)
+    const value = dataObj[timeframe];
+    
+    // Handle new TimeFrameValueObj format
+    if (value && typeof value === 'object' && 'value' in value) {
+      return (value as TimeFrameValueObj).value;
+    }
+    
+    // Handle old string format
+    return value as string | null;
   };
 
   // Helper function to format percentage values

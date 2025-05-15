@@ -1,26 +1,11 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
-
-// 新类型定义
-interface TimeFrameValueObj {
-  value: string | null; // 使用string类型，因为后端已预格式化
-  actualTimeframe: string;
-}
-
-interface TimeFrameValues {
-  '1m': TimeFrameValueObj | undefined;
-  '30m': TimeFrameValueObj | undefined;
-  '2h': TimeFrameValueObj | undefined;
-  '6h': TimeFrameValueObj | undefined;
-  '12h': TimeFrameValueObj | undefined;
-  '24h': TimeFrameValueObj | undefined;
-  [key: string]: TimeFrameValueObj | undefined;
-}
+import type { MetricTimeFrames } from '@/types/token';
 
 interface TradeVolumesCardProps {
-  buyVolumeUSDData?: TimeFrameValues | null;
-  sellVolumeUSDData?: TimeFrameValues | null;
-  volumeChangePercentData?: TimeFrameValues | null;
+  buyVolumeUSDData?: MetricTimeFrames | null;
+  sellVolumeUSDData?: MetricTimeFrames | null;
+  volumeChangePercentData?: MetricTimeFrames | null;
   timeframes: readonly string[];
   isLoading?: boolean;
 }
