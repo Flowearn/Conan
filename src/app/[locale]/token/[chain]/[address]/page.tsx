@@ -233,7 +233,10 @@ export default function TokenPage() {
     setError(null);
     
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+      let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+      // 确保baseUrl末尾没有斜杠
+      baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+      
       const chain = params.chain;
       const url = `${baseUrl}/api/token-data/${chain}/${params.address}`;
       console.log('--- Debug: Fetching URL:', url);
@@ -323,7 +326,10 @@ export default function TokenPage() {
     setAiError(null);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003'; // 使用修正后的后备 URL
+      let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003'; // 使用修正后的后备 URL
+      // 确保baseUrl末尾没有斜杠
+      baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+      
       const chain = params.chain;
 
       // 5. 获取并检查 locale
